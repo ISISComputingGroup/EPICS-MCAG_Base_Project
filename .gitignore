@@ -1,0 +1,12 @@
+epics-for-Motion/
+_Boot/
+_CompileInfo/
+_Libraries/
+.epics.*
+*.bak
+*.~u
+*.pyc
+*.tpy
+*.suo
+
+
