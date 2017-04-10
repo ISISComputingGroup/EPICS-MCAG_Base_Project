@@ -149,7 +149,7 @@ asynStatus eemcuAxis::readConfigFile(void)
     char errbuf[4196];
 
     char *mypwd = getcwd(cwdbuf, sizeof(cwdbuf));
-    snprintf(errbuf, sizeof(errbuf)-1,
+    epicsSnprintf(errbuf, sizeof(errbuf)-1,
              "readConfigFile: %s\n%s/%s",
              strerror(saved_errno),
              mypwd ? mypwd : "",
@@ -184,7 +184,7 @@ asynStatus eemcuAxis::readConfigFile(void)
       const char *cfg_txt_p = &rdbuf[strlen(setRaw_str)];
       while (*cfg_txt_p == ' ') cfg_txt_p++;
 
-      snprintf(pC_->outString_, sizeof(pC_->outString_), "%s", cfg_txt_p);
+      epicsSnprintf(pC_->outString_, sizeof(pC_->outString_), "%s", cfg_txt_p);
       status = writeReadACK();
     } else if (!strncmp(setADRinteger_str, rdbuf, strlen(setADRinteger_str))) {
       unsigned adsport;
@@ -223,11 +223,11 @@ asynStatus eemcuAxis::readConfigFile(void)
       char errbuf[256];
       errbuf[sizeof(errbuf)-1] = 0;
       if (status) {
-        snprintf(errbuf, sizeof(errbuf)-1,
+        epicsSnprintf(errbuf, sizeof(errbuf)-1,
                  "%s:%d out=%s\nin=%s",
                  drvlocal.cfgfileStr, line_no, pC_->outString_, pC_->inString_);
       } else {
-        snprintf(errbuf, sizeof(errbuf)-1,
+        epicsSnprintf(errbuf, sizeof(errbuf)-1,
                  "%s:%d \"%s\"\n%s",
                  drvlocal.cfgfileStr, line_no, rdbuf, errorTxt);
       }
@@ -775,7 +775,7 @@ asynStatus eemcuAxis::setMotorLimitsOnAxisIfDefined(void)
     if (axisID < 0) return asynError;
     indexGroupA = 0x5000 + (unsigned int)axisID;
     enable = drvlocal.motorLowLimit < drvlocal.motorHighLimit ? 1 : 0;
-    snprintf(pC_->outString_, sizeof(pC_->outString_),
+    epicsSnprintf(pC_->outString_, sizeof(pC_->outString_),
              "ADSPORT=%u/.ADR.16#%X,16#%X,8,5=%g;"
              "ADSPORT=%u/.ADR.16#%X,16#%X,8,5=%g;"
              "ADSPORT=%u/.ADR.16#%X,16#%X,2,2=%d;"
