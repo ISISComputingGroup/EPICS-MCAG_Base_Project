@@ -17,3 +17,6 @@ lib/
 O.*/
 *.pyc
 *~
+dllPath.bat
+runIOC.sh
+runIOC.bat
