@@ -1,14 +1,8 @@
-include ${EPICS_ENV_PATH}/module.Makefile
+install:
+	$(MAKE) -f Makefile.epics install
 
-SOURCES = \
-  eemcuApp/src/eemcuAxis.cpp \
-  eemcuApp/src/eemcuController.cpp \
-  eemcuApp/src/eemcuMain.cpp
+clean:
+	$(MAKE) -f Makefile.epics clean
 
-TEMPLATES = \
-  eemcuApp/Db/eemcu.template \
-  eemcuApp/Db/eemcu-extra.template
-
-MISCS = \
-  iocBoot/ioceemcu/SolAxis-48.cfg \
-  iocBoot/ioceemcu/SolAxis-48-1.cfg
+uninstall:
+	$(MAKE) -f Makefile.epics uninstall
