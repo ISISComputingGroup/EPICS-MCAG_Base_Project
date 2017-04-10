@@ -7,10 +7,18 @@
 #include <stdlib.h>
 #include <math.h>
 #include <errno.h>
+#ifdef _WIN32
+#include <direct.h>
+#else
 #include <unistd.h>
+#endif
 
 #include <epicsThread.h>
 
+#include "asynMotorController.h"
+#include "asynMotorAxis.h"
+
+#include <epicsExport.h>
 #include "eemcu.h"
 
 #ifndef ASYN_TRACE_INFO
