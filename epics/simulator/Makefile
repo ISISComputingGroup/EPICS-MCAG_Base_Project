@@ -86,6 +86,8 @@ install: all
 
 uninstall: 
 
+doxygen:
+
 checkwhitespace:
 	../checkws.sh
 	./today.sh today.h
