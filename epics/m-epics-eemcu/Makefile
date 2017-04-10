@@ -6,3 +6,6 @@ clean:
 
 uninstall:
 	$(MAKE) -f Makefile.epics uninstall
+
+doxygen:
+	$(MAKE) -f Makefile.epics doxygen
