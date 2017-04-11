@@ -12,10 +12,12 @@ dbLoadDatabase "dbd/eemcu.dbd"
 eemcu_registerRecordDeviceDriver pdbbase
 
 ## Configure devices
-drvAsynIPPortConfigure("MC_CPU1","127.0.0.1:5024",0,0,0)
+#drvAsynIPPortConfigure("MC_CPU1","127.0.0.1:5024",0,0,0)
+drvAsynIPPortConfigure("MC_CPU1","192.168.1.67:200",0,0,0)
 asynOctetSetOutputEos("MC_CPU1", -1, ";\n")
 asynOctetSetInputEos("MC_CPU1", -1, ";\n")
-eemcuCreateController("MCU1", "MC_CPU1", "32", "200", "1000")
+#eemcuCreateController("MCU1", "MC_CPU1", "32", "200", "1000")
+eemcuCreateController("MCU1", "MC_CPU1", "2", "200", "1000")
   #define ASYN_TRACE_ERROR     0x0001
   #define ASYN_TRACEIO_DEVICE  0x0002
   #define ASYN_TRACEIO_FILTER  0x0004
