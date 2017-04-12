@@ -11,8 +11,8 @@ include $(TOP)/configure/CONFIG
 # Create and install (or just install) into <top>/db
 # databases, templates, substitutions like this
 #DB += xxx.db
-DB += eemcu.db
-DB += eemcu-extra.db
+DB += eemcu.db eemcu.template
+DB += eemcu-extra.db eemcu-extra.template
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

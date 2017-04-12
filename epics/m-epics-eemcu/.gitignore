@@ -4,6 +4,7 @@ builddir/
 configure/RELEASE
 dbd/
 db/*.db
+db/*.template
 eemcuApp/Db/eemcu.substitutions
 include/
 iocBoot/ioceemcu/envPaths*
