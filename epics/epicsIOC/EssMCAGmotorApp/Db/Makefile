@@ -11,7 +11,7 @@ include $(TOP)/configure/CONFIG
 # Create and install (or just install) into <top>/db
 # databases, templates, substitutions like this
 #DB += xxx.db
-DB += EssMCAGmotor.db
+DB += EssMCAGmotor.db EssMCAGmotor.template
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

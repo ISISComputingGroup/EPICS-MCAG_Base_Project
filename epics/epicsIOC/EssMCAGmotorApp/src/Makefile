@@ -8,27 +8,32 @@ include $(TOP)/configure/CONFIG
 #=============================
 # Build the IOC application
 
+LIBRARY_IOC = eemcuSupport
+
 PROD_IOC = EssMCAGmotor
 # EssMCAGmotor.dbd will be created and installed
-DBD += EssMCAGmotor.dbd
+DBD += eemcuSupport.dbd EssMCAGmotor.dbd
 
-# EssMCAGmotor.dbd will be made up from these files:
-EssMCAGmotor_DBD += base.dbd
+eemcuSupport_DBD += base.dbd
 
 # Include dbd files from all support applications:
-#EssMCAGmotor_DBD += xxx.dbd
-EssMCAGmotor_DBD += asyn.dbd
-EssMCAGmotor_DBD += drvAsynIPPort.dbd
-EssMCAGmotor_DBD += motorSupport.dbd
-EssMCAGmotor_DBD += EssMCAGmotorController.dbd
+#eemcu_DBD += xxx.dbd
+eemcuSupport_DBD += asyn.dbd
+eemcuSupport_DBD += drvAsynIPPort.dbd
+eemcuSupport_DBD += motorSupport.dbd
+eemcuSupport_DBD += EssMCAGmotorController.dbd
+
+# EssMCAGmotor.dbd will be made up from these files:
+EssMCAGmotor_DBD += eemcuSupport.dbd
 
 # Add source files
-EssMCAGmotor_SRCS += EssMCAGmotorController.cpp
-EssMCAGmotor_SRCS += EssMCAGmotorAxis.cpp
+eemcuSupport_SRCS += EssMCAGmotorController.cpp
+eemcuSupport_SRCS += EssMCAGmotorAxis.cpp
 
 # Add all the support libraries needed by this IOC
-EssMCAGmotor_LIBS += asyn
-EssMCAGmotor_LIBS += motor
+eemcuSupport_LIBS += motor
+eemcuSupport_LIBS += asyn
+eemcuSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 # EssMCAGmotor_registerRecordDeviceDriver.cpp derives from EssMCAGmotor.dbd
 EssMCAGmotor_SRCS += EssMCAGmotor_registerRecordDeviceDriver.cpp
@@ -41,6 +46,9 @@ EssMCAGmotor_SRCS_vxWorks += -nil-
 #EssMCAGmotor_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 
 # Finally link to the EPICS Base libraries
+EssMCAGmotor_LIBS += eemcuSupport
+EssMCAGmotor_LIBS += motor
+EssMCAGmotor_LIBS += asyn
 EssMCAGmotor_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================

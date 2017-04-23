@@ -1,7 +1,9 @@
 TOP = ../../../../extensions/master
 include $(TOP)/configure/CONFIG
 
-DIRS := m-epics-eemcu epicsIOC
+# only build one of these
+#DIRS := m-epics-eemcu
+DIRS := epicsIOC
 ifneq ($(findstring linux,$(EPICS_HOST_ARCH)),)
 DIRS := $(DIRS) simulator
 endif
