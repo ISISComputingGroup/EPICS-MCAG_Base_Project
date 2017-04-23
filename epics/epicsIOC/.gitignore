@@ -1,8 +1,8 @@
 .set*.txt
 bin/
-configure/RELEASE
 dbd/
 db/*.db
+db/*.template
 EssMCAGmotorApp/Db/EssMCAGmotor.substitutions
 include/
 iocBoot/iocEssMCAGmotor/envPaths*
