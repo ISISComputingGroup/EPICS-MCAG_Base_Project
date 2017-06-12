@@ -14,16 +14,15 @@ PROD_IOC = EssMCAGmotor
 # EssMCAGmotor.dbd will be created and installed
 DBD += eemcuSupport.dbd EssMCAGmotor.dbd
 
-eemcuSupport_DBD += base.dbd
-
 # Include dbd files from all support applications:
 #eemcu_DBD += xxx.dbd
-eemcuSupport_DBD += asyn.dbd
-eemcuSupport_DBD += drvAsynIPPort.dbd
-eemcuSupport_DBD += motorSupport.dbd
 eemcuSupport_DBD += EssMCAGmotorController.dbd
 
 # EssMCAGmotor.dbd will be made up from these files:
+EssMCAGmotor_DBD += base.dbd
+EssMCAGmotor_DBD += asyn.dbd
+EssMCAGmotor_DBD += drvAsynIPPort.dbd
+EssMCAGmotor_DBD += motorSupport.dbd
 EssMCAGmotor_DBD += eemcuSupport.dbd
 
 # Add source files
@@ -57,3 +56,4 @@ include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
 
+$(COMMON_DIR)/EssMCAGmotor.dbd: $(COMMON_DIR)/eemcuSupport.dbd
