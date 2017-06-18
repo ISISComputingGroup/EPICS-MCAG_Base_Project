@@ -8,5 +8,5 @@ _Libraries/
 *.pyc
 *.tpy
 *.suo
-
-
+runIOC.bat
+dllPath.bat
