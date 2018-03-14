@@ -1,8 +1,19 @@
 # top level master release and local private options 
-include $(TOP)/../../../../../configure/MASTER_RELEASE
--include $(TOP)/../../../../../configure/MASTER_RELEASE.$(EPICS_HOST_ARCH)
--include $(TOP)/../../../../../configure/MASTER_RELEASE.private
--include $(TOP)/../../../../../configure/MASTER_RELEASE.private.$(EPICS_HOST_ARCH)
+
+TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
+
+ASYN=$(SUPPORT)/asyn/master
+AUTOSAVE=$(SUPPORT)/autosave/master
+BUSY=$(SUPPORT)/busy/master
+CALC=$(SUPPORT)/calc/master
+#EEMCU=$(SUPPORT)/MCAG_Base_Project/master/epics/m-epics-eemcu
+EEMCU=$(SUPPORT)/MCAG_Base_Project/master/epics/epicsIOC
+IPAC=$(SUPPORT)/ipac/master
+SNCSEQ=$(SUPPORT)/seq/master
+SSCAN=$(SUPPORT)/sscan/master
+ONCRPC=$(SUPPORT)/oncrpc/master
+#MOTOR=$(SUPPORT)/motor/master
+AXISRECORD=$(SUPPORT)/axisRecord/master
 
 # optional extra local definitions here
 -include $(TOP)/../../configure/RELEASE.private

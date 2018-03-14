@@ -2,8 +2,8 @@
 FILENAME...   EssMCAGmotor.h
 */
 
-#include "asynMotorController.h"
-#include "asynMotorAxis.h"
+#include "asynAxisController.h"
+#include "asynAxisAxis.h"
 
 // No controller-specific parameters yet
 #define NUM_VIRTUAL_MOTOR_PARAMS 0  
@@ -43,7 +43,7 @@ typedef struct {
   int bBusy;             /* 23 */
 } st_axis_status_type;
 
-class epicsShareClass EssMCAGmotorAxis : public asynMotorAxis
+class epicsShareClass EssMCAGmotorAxis : public asynAxisAxis
 {
 public:
   /* These are the methods we override from the base class */
@@ -59,7 +59,7 @@ public:
   asynStatus poll(bool *moving);
 
 private:
-  EssMCAGmotorController *pC_;          /**< Pointer to the asynMotorController to which this axis belongs.
+  EssMCAGmotorController *pC_;          /**< Pointer to the asynAxisController to which this axis belongs.
                                    *   Abbreviated because it is used very frequently */
   struct {
     double motorHighLimit;
@@ -123,7 +123,7 @@ private:
   friend class EssMCAGmotorController;
 };
 
-class epicsShareClass EssMCAGmotorController : public asynMotorController {
+class epicsShareClass EssMCAGmotorController : public asynAxisController {
 public:
   EssMCAGmotorController(const char *portName, const char *EssMCAGmotorPortName, int numAxes, double movingPollPeriod, double idlePollPeriod);
 

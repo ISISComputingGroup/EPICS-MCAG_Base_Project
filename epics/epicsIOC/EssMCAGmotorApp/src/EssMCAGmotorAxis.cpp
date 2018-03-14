@@ -8,8 +8,8 @@ FILENAME... EssMCAGmotorAxis.cpp
 
 #include <epicsThread.h>
 
-#include "asynMotorController.h"
-#include "asynMotorAxis.h"
+#include "asynAxisController.h"
+#include "asynAxisAxis.h"
 
 #include <epicsExport.h>
 #include "EssMCAGmotor.h"
@@ -31,7 +31,7 @@ FILENAME... EssMCAGmotorAxis.cpp
   */
 EssMCAGmotorAxis::EssMCAGmotorAxis(EssMCAGmotorController *pC, int axisNo,
 				   int axisFlags, const char *axisOptionsStr)
-  : asynMotorAxis(pC, axisNo),
+  : asynAxisAxis(pC, axisNo),
     pC_(pC)
 {
   memset(&drvlocal, 0, sizeof(drvlocal));
@@ -114,7 +114,7 @@ void EssMCAGmotorAxis::handleStatusChange(asynStatus newStatus)
   * \param[in] fp The file pointer on which report information will be written
   * \param[in] level The level of report detail desired
   *
-  * After printing device-specific information calls asynMotorAxis::report()
+  * After printing device-specific information calls asynAxisAxis::report()
   */
 void EssMCAGmotorAxis::report(FILE *fp, int level)
 {
@@ -123,7 +123,7 @@ void EssMCAGmotorAxis::report(FILE *fp, int level)
  }
 
   // Call the base class method
-  asynMotorAxis::report(fp, level);
+  asynAxisAxis::report(fp, level);
 }
 
 
@@ -650,7 +650,7 @@ asynStatus EssMCAGmotorAxis::setIntegerParam(int function, int value)
   }
 
   //Call base class method
-  status = asynMotorAxis::setIntegerParam(function, value);
+  status = asynAxisAxis::setIntegerParam(function, value);
   return status;
 }
 
@@ -681,6 +681,6 @@ asynStatus EssMCAGmotorAxis::setDoubleParam(int function, double value)
   }
 
   // Call the base class method
-  status = asynMotorAxis::setDoubleParam(function, value);
+  status = asynAxisAxis::setDoubleParam(function, value);
   return status;
 }

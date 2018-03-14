@@ -12,8 +12,8 @@ FILENAME... EssMCAGmotorController.cpp
 
 #include <asynOctetSyncIO.h>
 
-#include "asynMotorController.h"
-#include "asynMotorAxis.h"
+#include "asynAxisController.h"
+#include "asynAxisAxis.h"
 
 #include <epicsExport.h>
 #include "EssMCAGmotor.h"
@@ -27,7 +27,7 @@ FILENAME... EssMCAGmotorController.cpp
   */
 EssMCAGmotorController::EssMCAGmotorController(const char *portName, const char *MotorPortName, int numAxes,
                                                double movingPollPeriod,double idlePollPeriod)
-  :  asynMotorController(portName, numAxes, NUM_VIRTUAL_MOTOR_PARAMS,
+  :  asynAxisController(portName, numAxes, NUM_VIRTUAL_MOTOR_PARAMS,
                          0, // No additional interfaces beyond those in base class
                          0, // No additional callback interfaces beyond those in base class
                          ASYN_CANBLOCK | ASYN_MULTIDEVICE,
@@ -118,7 +118,7 @@ void EssMCAGmotorController::handleStatusChange(asynStatus status)
   * \param[in] level The level of report detail desired
   *
   * If details > 0 then information is printed about each axis.
-  * After printing controller-specific information it calls asynMotorController::report()
+  * After printing controller-specific information it calls asynAxisController::report()
   */
 void EssMCAGmotorController::report(FILE *fp, int level)
 {
@@ -126,7 +126,7 @@ void EssMCAGmotorController::report(FILE *fp, int level)
     this->portName, numAxes_, movingPollPeriod_, idlePollPeriod_);
 
   // Call the base class method
-  asynMotorController::report(fp, level);
+  asynAxisController::report(fp, level);
 }
 
 /** Returns a pointer to an EssMCAGmotorAxis object.
@@ -134,7 +134,7 @@ void EssMCAGmotorController::report(FILE *fp, int level)
   * \param[in] pasynUser asynUser structure that encodes the axis index number. */
 EssMCAGmotorAxis* EssMCAGmotorController::getAxis(asynUser *pasynUser)
 {
-  return static_cast<EssMCAGmotorAxis*>(asynMotorController::getAxis(pasynUser));
+  return static_cast<EssMCAGmotorAxis*>(asynAxisController::getAxis(pasynUser));
 }
 
 /** Returns a pointer to an EssMCAGmotorAxis object.
@@ -142,7 +142,7 @@ EssMCAGmotorAxis* EssMCAGmotorController::getAxis(asynUser *pasynUser)
   * \param[in] axisNo Axis index number. */
 EssMCAGmotorAxis* EssMCAGmotorController::getAxis(int axisNo)
 {
-  return static_cast<EssMCAGmotorAxis*>(asynMotorController::getAxis(axisNo));
+  return static_cast<EssMCAGmotorAxis*>(asynAxisController::getAxis(axisNo));
 }
 
 
@@ -154,7 +154,7 @@ asynStatus EssMCAGmotorController::writeInt32(asynUser *pasynUser, epicsInt32 va
   if (!pAxis) return asynError;
 
   (void)pAxis->setIntegerParam(function, value);
-  return asynMotorController::writeInt32(pasynUser, value);
+  return asynAxisController::writeInt32(pasynUser, value);
 }
 
 /** Code for iocsh registration */
