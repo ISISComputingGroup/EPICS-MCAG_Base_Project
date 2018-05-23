@@ -21,6 +21,86 @@ record(axis,"$(P)$(M)")
 	field(INIT,"$(INIT)")
 	field(RTRY,"$(RTRY=0)")
 	field(TWV,"1")
+	info(archive,"0.02 VAL RBV OFF MSTA DIR CNEN MOVN DMOV MISS RCNT")
+	info(alarm,"Motors")
+}
+
+record(transform,"$(P)$(M)_ableput") {
+  field(CLCB,"a")
+  field(CLCC,"a")
+  field(OUTA,"$(P)$(M).DISA NPP NMS")
+  field(OUTB,"$(P)$(M).DISP NPP NMS")
+  field(OUTC,"$(P)$(M).DISA NPP NMS")
+}
+
+record(bo,"$(P)$(M)_able") {
+  field(DESC,"motor enable")
+  field(PINI,"YES")
+  field(OUT,"$(P)$(M)_ableput.A PP MS")
+  field(ZNAM,"Enable")
+  field(ONAM,"Disable")
+}
+
+record(transform,"$(P)$(M)_lockput") {
+  field(CLCB, "a = 0 ? 3 : 0")
+  field(CMTB, "SPMG value")
+  field(CMTA, "locked value")
+  field(CLCC,"b")
+  field(CLCD,"a")
+  field(CLCE,"b")
+  field(OUTC,"$(P)$(M).SPMG NPP NMS")
+  field(OUTD,"$(P)$(M).DISP NPP NMS")
+  field(OUTE,"$(P)$(M).SPMG NPP NMS")
+}
+
+record(bo,"$(P)$(M)_lock") {
+  field(DESC,"Motor lock")
+#  field(PINI,"YES")
+  field(OUT,"$(P)$(M)_lockput.A PP MS")
+  field(ZNAM,"Unlocked")
+  field(ONAM,"Locked")
+}
+
+record(stringin, "$(P)$(M)_MTR")
+{
+    field(VAL, "$(M)")
+}
+
+record(aSub,"$(P)$(M)_ERRCALC")
+{
+    field(SNAM,"checkMotorError")
+    field(SCAN,"Passive")
+    field(INPA,"$(P)$(M).MSTA CP")
+	field(FTA, "ULONG")
+    field(INPB,"$(P)$(M).LVIO CP")
+	field(FTB, "SHORT")
+    field(INPC,"$(P)$(M).HLS CP")
+	field(FTC, "SHORT")
+    field(INPD,"$(P)$(M).LLS CP")
+	field(FTD, "SHORT")
+    field(INPE,"$(P)$(M).STAT CP")
+	field(FTE, "USHORT")
+    field(INPF,"$(P)$(M).SEVR CP")
+	field(FTF, "USHORT")
+    field(INPG,"$(P)$(M)_MTR")
+	field(FTG, "STRING")
+	field(FTVA, "STRING")
+	field(FTVB, "ULONG")
+	# we want to process _ERRCALC_FAN only if the error message changes, so use OUTA not FLNK
+	# but strings outputs cannot be used to write to .PROC fields, so need to use intermediate string record 
+	field(OUTA, "$(P)$(M)_ERRCALC_MESS PP")
+}
+
+record(stringout, "$(P)$(M)_ERRCALC_MESS")
+{
+}
+
+record(stringout, "$(P)$(M)_PERROR")
+{
+    field(OMSL, "closed_loop")
+    field(DOL, "$(P)$(M)_ERRCALC_MESS CP")
+    field(DTYP, "stdio")
+    field(OUT, "@errlog")
 }
 
 # ISIS local aliases for genie_python
