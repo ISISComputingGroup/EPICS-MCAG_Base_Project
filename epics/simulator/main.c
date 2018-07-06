@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#ifndef _WIN32
 #include <unistd.h>
 #include <libgen.h>
+#endif
 #include <stdint.h>
 #include <stdbool.h>
 

@@ -47,7 +47,7 @@ void dump_to_std(const char *buf,
          inout);
 }
 
-void dump_and_send(int fd, int flags, const char *buf, unsigned len)
+void dump_and_send(SOCKET fd, int flags, const char *buf, unsigned len)
 {
   if ((flags & PRINT_OUT) || PRINT_STDOUT_BIT1()) {
     dump_to_std(buf, len, "OUT", 0, 0);
@@ -55,12 +55,12 @@ void dump_and_send(int fd, int flags, const char *buf, unsigned len)
   send_to_socket(fd, buf, len);
 }
 /*****************************************************************************/
-static int fd_vprintf_crlf(int fd, int flags, const char* format, va_list arg)
+static int fd_vprintf_crlf(SOCKET fd, int flags, const char* format, va_list arg)
 {
   const static size_t len = 4096;
   int add_cr = flags & PRINT_ADD_CR;
 
-  char *buf = calloc(len,1);
+  char *buf = (char*)calloc(len,1);
   int res = vsnprintf(buf, len-1, format, arg);
   if (res > 0 && !add_cr) {
     dump_and_send(fd, flags, buf, res);
@@ -69,7 +69,7 @@ static int fd_vprintf_crlf(int fd, int flags, const char* format, va_list arg)
   {
     unsigned src_idx = 0;
     unsigned dst_idx = 0;
-    char *buf2 = calloc(2*res, 1);
+    char *buf2 = (char*)calloc(2*res, 1);
     char oldc = 0;
     for (src_idx=0; src_idx < res; src_idx++)
     {
@@ -94,7 +94,7 @@ static int fd_vprintf_crlf(int fd, int flags, const char* format, va_list arg)
 }
 
 /*****************************************************************************/
-void fd_printf_crlf(int fd, int add_cr, const char *format, ...)
+void fd_printf_crlf(SOCKET fd, int add_cr, const char *format, ...)
 {
   va_list ap;
 
@@ -167,7 +167,7 @@ static int create_argv(const char *line, int had_cr, int had_lf, const char*** a
 }
 
 /*****************************************************************************/
-int handle_input_line(int socket_fd, const char *input_line, int had_cr, int had_lf)
+int handle_input_line(SOCKET socket_fd, const char *input_line, int had_cr, int had_lf)
 {
   static const char *seperator_seperator = ";";
   static const char *terminator_terminator = "\n";
@@ -186,7 +186,7 @@ int handle_input_line(int socket_fd, const char *input_line, int had_cr, int had
     int nvals;
     nvals = sscanf(myarg_1, "%d", &timeout);
     if (nvals == 1) {
-      int res = socket_set_timeout(socket_fd, timeout);
+      SOCKET res = socket_set_timeout(socket_fd, timeout);
       cmd_buf_printf("%s%s%s",
                      res ? "Error" : "OK",
                      seperator_seperator,
