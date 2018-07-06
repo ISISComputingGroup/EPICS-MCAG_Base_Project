@@ -11,3 +11,4 @@ today.h
 version.h
 *.o
 simMotor
+O.*
