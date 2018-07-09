@@ -23,3 +23,4 @@ MCGASim_SRCS_WIN32 += gettimeofday.c
 	
 include $(TOP)/configure/RULES
 
+uninstall:
