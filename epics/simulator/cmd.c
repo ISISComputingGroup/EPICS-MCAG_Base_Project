@@ -186,7 +186,7 @@ int handle_input_line(SOCKET socket_fd, const char *input_line, int had_cr, int 
     int nvals;
     nvals = sscanf(myarg_1, "%d", &timeout);
     if (nvals == 1) {
-      SOCKET res = socket_set_timeout(socket_fd, timeout);
+      int res = socket_set_timeout(socket_fd, timeout);
       cmd_buf_printf("%s%s%s",
                      res ? "Error" : "OK",
                      seperator_seperator,

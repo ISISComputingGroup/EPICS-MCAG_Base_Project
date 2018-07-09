@@ -65,7 +65,7 @@ void init_client_cons(void)
   unsigned i;
   memset(client_cons, 0, sizeof(client_cons));
   for (i=0; i < NUM_CLIENT_CONS; i++) {
-    client_cons[i].fd = -1; /* fd is closed */
+    client_cons[i].fd = INVALID_SOCKET; /* fd is closed */
     client_cons[i].buffer = (unsigned char*)malloc(CLIENT_CONS_BUFLEN);
   }
 }
@@ -74,7 +74,7 @@ void add_client_con(SOCKET fd)
 {
   unsigned int i;
   for (i=0; i < NUM_CLIENT_CONS; i++) {
-    if (client_cons[i].fd < 0) {
+    if (client_cons[i].fd == INVALID_SOCKET) {
       client_cons[i].fd = fd;
       client_cons[i].idleTimeout = 0;
       LOGINFO7("%s/%s:%d add i=%d fd=%d\n",
@@ -113,7 +113,7 @@ void close_and_remove_client_con_i(int i)
              __FILE__,__FUNCTION__, __LINE__,
              i, fd, res,
              res ? strerror(errno) : "");
-    client_cons[i].fd = -1;
+    client_cons[i].fd = INVALID_SOCKET;
     return;
   }
   LOGINFO7("%s/%s:%d close i=%d\n",
@@ -138,7 +138,7 @@ SOCKET get_listen_socket(const char *listen_port_asc)
   };
   int bind_ok = bind_ok_not_tried;
   int reuse_on = 1;
-  SOCKET sockfd = -1;
+  SOCKET sockfd = INVALID_SOCKET;
   int socket_family = AF_INET;
   int socket_type = SOCK_STREAM;
   int socket_protocol = 0;
@@ -178,7 +178,7 @@ SOCKET get_listen_socket(const char *listen_port_asc)
 #endif
 
   sockfd = socket(socket_family, socket_type, socket_protocol);
-  if (sockfd < 0) {
+  if (sockfd == INVALID_SOCKET) {
     if (socket_family == AF_INET6) {
       /* Some systems have IPv6 compiled,
          but not activated: try with IPv4 */
@@ -187,9 +187,9 @@ SOCKET get_listen_socket(const char *listen_port_asc)
       socket_protocol = 0;
     }
   }
-  if (sockfd < 0) {
+  if (sockfd == INVALID_SOCKET) {
     sockfd = socket(socket_family, socket_type, socket_protocol);
-    if (sockfd < 0) {
+    if (sockfd == INVALID_SOCKET) {
       LOGERR_ERRNO("socket(%d %d %d ) failed sockfd=%d\n",
                    socket_family, socket_type, socket_protocol, sockfd);
       goto freeandret;
@@ -254,7 +254,7 @@ SOCKET get_listen_socket(const char *listen_port_asc)
 
   error:
   closesocket(sockfd);
-  sockfd = -1;
+  sockfd = INVALID_SOCKET;
 
   freeandret:
 #ifndef USE_WINSOCK2
@@ -342,14 +342,14 @@ void handle_accepted_socket(SOCKET listen_socket, SOCKET accepted_socket)
       for (i=0; i < NUM_CLIENT_CONS; i++) {
         SOCKET fd = client_cons[i].fd;
         time_t idleTimeout = client_cons[i].idleTimeout;
-        if (fd < 0) continue;
+        if (fd == INVALID_SOCKET) continue;
         if (idleTimeout) {
           time_t last_active_sec = client_cons[i].last_active_sec;
           if (tv_now.tv_sec - idleTimeout > last_active_sec) {
             LOGINFO7("%s/%s:%d timeout i=%d fd=%d\n",
                      __FILE__, __FUNCTION__, __LINE__, i, fd);
             close_and_remove_client_con_i(i);
-            fd = -1;
+            fd = INVALID_SOCKET;
           } else {
             /* Wait at least 1 second */
             time_t wait_now = 1 + idleTimeout + last_active_sec - tv_now.tv_sec;
@@ -389,7 +389,7 @@ void handle_accepted_socket(SOCKET listen_socket, SOCKET accepted_socket)
 
           for (i=0; i < NUM_CLIENT_CONS; i++) {
             SOCKET fd = client_cons[i].fd;
-            if (fd < 0) continue;
+            if (fd == INVALID_SOCKET) continue;
             if (FD_ISSET (fd, &rfds)) {
               LOGINFO7("%s/%s:%d FD_ISSET fd=%d\n",
                        __FILE__, __FUNCTION__, __LINE__, fd);
@@ -443,7 +443,7 @@ void socket_loop(void)
 
   listen_socket = get_listen_socket(listen_port_asc);
 
-  if (listen_socket < 0)
+  if (listen_socket == INVALID_SOCKET)
   {
     LOGERR_ERRNO("no listening socket!\n");
     exit(3);
@@ -452,7 +452,7 @@ void socket_loop(void)
   while (!stop_and_exit)
   {
     accepted_socket = accept(listen_socket, NULL, NULL);
-    if (accepted_socket < 0)
+    if (accepted_socket == INVALID_SOCKET)
     {
       LOGERR("accept() failed\n");
       stop_and_exit = 1;
