@@ -1,12 +1,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#ifdef _WIN32
+#include <time.h>
+#include "gettimeofday.h"
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#else
+#include <sys/time.h>    
 #include <unistd.h>
 #include <libgen.h>
+#endif
 #include <stdint.h>
 #include <stdbool.h>
 #include <errno.h>
-#include <sys/time.h>
 
 #include "sock-util.h"
 #if (!defined _WIN32 && !defined __WIN32__ && !defined __CYGWIN__)
@@ -47,7 +54,7 @@ typedef struct client_con_type {
   unsigned char *buffer;
   time_t        last_active_sec;
   time_t        idleTimeout;
-  int           fd;
+  SOCKET        fd;
 } client_con_type;
 
 /* static variables */
@@ -58,16 +65,16 @@ void init_client_cons(void)
   unsigned i;
   memset(client_cons, 0, sizeof(client_cons));
   for (i=0; i < NUM_CLIENT_CONS; i++) {
-    client_cons[i].fd = -1; /* fd is closed */
-    client_cons[i].buffer = malloc(CLIENT_CONS_BUFLEN);
+    client_cons[i].fd = INVALID_SOCKET; /* fd is closed */
+    client_cons[i].buffer = (unsigned char*)malloc(CLIENT_CONS_BUFLEN);
   }
 }
 
-void add_client_con(int fd)
+void add_client_con(SOCKET fd)
 {
   unsigned int i;
   for (i=0; i < NUM_CLIENT_CONS; i++) {
-    if (client_cons[i].fd < 0) {
+    if (client_cons[i].fd == INVALID_SOCKET) {
       client_cons[i].fd = fd;
       client_cons[i].idleTimeout = 0;
       LOGINFO7("%s/%s:%d add i=%d fd=%d\n",
@@ -80,11 +87,11 @@ void add_client_con(int fd)
   /* No more space, we should close the oldest not used,
        the most stale.
        But now we close the new one */
-  close(fd);
+  closesocket(fd);
 }
 
 
-int find_client_con(int fd)
+int find_client_con(SOCKET fd)
 {
   unsigned int i;
   for (i=0; i < NUM_CLIENT_CONS; i++) {
@@ -100,13 +107,13 @@ int find_client_con(int fd)
 void close_and_remove_client_con_i(int i)
 {
   if (i >= 0) {
-    int fd = client_cons[i].fd;
-    int res = close(fd);
+    SOCKET fd = client_cons[i].fd;
+    int res = closesocket(fd);
     LOGINFO7("%s/%s:%d close i=%d fd=%d res=%d (%s)\n",
              __FILE__,__FUNCTION__, __LINE__,
              i, fd, res,
              res ? strerror(errno) : "");
-    client_cons[i].fd = -1;
+    client_cons[i].fd = INVALID_SOCKET;
     return;
   }
   LOGINFO7("%s/%s:%d close i=%d\n",
@@ -114,14 +121,14 @@ void close_and_remove_client_con_i(int i)
 }
 
 
-void close_and_remove_client_con_fd(int fd)
+void close_and_remove_client_con_fd(SOCKET fd)
 {
   close_and_remove_client_con_i(find_client_con(fd));
 }
 
 /*****************************************************************************/
 
-int get_listen_socket(const char *listen_port_asc)
+SOCKET get_listen_socket(const char *listen_port_asc)
 {
   enum bind_ok_status  {
     bind_ok_not_tried   = -1,
@@ -131,7 +138,7 @@ int get_listen_socket(const char *listen_port_asc)
   };
   int bind_ok = bind_ok_not_tried;
   int reuse_on = 1;
-  int sockfd = -1;
+  SOCKET sockfd = INVALID_SOCKET;
   int socket_family = AF_INET;
   int socket_type = SOCK_STREAM;
   int socket_protocol = 0;
@@ -171,7 +178,7 @@ int get_listen_socket(const char *listen_port_asc)
 #endif
 
   sockfd = socket(socket_family, socket_type, socket_protocol);
-  if (sockfd < 0) {
+  if (sockfd == INVALID_SOCKET) {
     if (socket_family == AF_INET6) {
       /* Some systems have IPv6 compiled,
          but not activated: try with IPv4 */
@@ -180,9 +187,9 @@ int get_listen_socket(const char *listen_port_asc)
       socket_protocol = 0;
     }
   }
-  if (sockfd < 0) {
+  if (sockfd == INVALID_SOCKET) {
     sockfd = socket(socket_family, socket_type, socket_protocol);
-    if (sockfd < 0) {
+    if (sockfd == INVALID_SOCKET) {
       LOGERR_ERRNO("socket(%d %d %d ) failed sockfd=%d\n",
                    socket_family, socket_type, socket_protocol, sockfd);
       goto freeandret;
@@ -246,8 +253,8 @@ int get_listen_socket(const char *listen_port_asc)
 
 
   error:
-  close(sockfd);
-  sockfd = -1;
+  closesocket(sockfd);
+  sockfd = INVALID_SOCKET;
 
   freeandret:
 #ifndef USE_WINSOCK2
@@ -259,7 +266,7 @@ int get_listen_socket(const char *listen_port_asc)
   return sockfd;
 }
 
-static void handle_data_on_socket(int i, int fd)
+static void handle_data_on_socket(int i, SOCKET fd)
 {
   ssize_t read_res = 0;
   size_t len_used = client_cons[i].len_used;
@@ -286,7 +293,7 @@ static void handle_data_on_socket(int i, int fd)
              __FILE__, __FUNCTION__, __LINE__, i, fd,
              (unsigned long)len_used, pNewline ? 1 : 0);
     if (pNewline) {
-      size_t line_len = 1 + (void*)pNewline - (void*)client_cons[i].buffer;
+      size_t line_len = 1 + (char*)pNewline - (char*)client_cons[i].buffer;
       int had_cr = 0;
       LOGINFO7("%s/%s:%d FD_ISSET i=%d fd=%d line_len=%lu\n",
                __FILE__, __FUNCTION__, __LINE__, i, fd,
@@ -306,7 +313,7 @@ static void handle_data_on_socket(int i, int fd)
 }
 
 /*****************************************************************************/
-void handle_accepted_socket(int listen_socket, int accepted_socket)
+void handle_accepted_socket(SOCKET listen_socket, SOCKET accepted_socket)
 {
   /* We come here if we have accepted a new connection */
   unsigned int i;
@@ -333,16 +340,16 @@ void handle_accepted_socket(int listen_socket, int accepted_socket)
 
       FD_SET(listen_socket, &rfds);
       for (i=0; i < NUM_CLIENT_CONS; i++) {
-        int fd = client_cons[i].fd;
+        SOCKET fd = client_cons[i].fd;
         time_t idleTimeout = client_cons[i].idleTimeout;
-        if (fd < 0) continue;
+        if (fd == INVALID_SOCKET) continue;
         if (idleTimeout) {
           time_t last_active_sec = client_cons[i].last_active_sec;
           if (tv_now.tv_sec - idleTimeout > last_active_sec) {
             LOGINFO7("%s/%s:%d timeout i=%d fd=%d\n",
                      __FILE__, __FUNCTION__, __LINE__, i, fd);
             close_and_remove_client_con_i(i);
-            fd = -1;
+            fd = INVALID_SOCKET;
           } else {
             /* Wait at least 1 second */
             time_t wait_now = 1 + idleTimeout + last_active_sec - tv_now.tv_sec;
@@ -381,8 +388,8 @@ void handle_accepted_socket(int listen_socket, int accepted_socket)
           unsigned int i;
 
           for (i=0; i < NUM_CLIENT_CONS; i++) {
-            int fd = client_cons[i].fd;
-            if (fd < 0) continue;
+            SOCKET fd = client_cons[i].fd;
+            if (fd == INVALID_SOCKET) continue;
             if (FD_ISSET (fd, &rfds)) {
               LOGINFO7("%s/%s:%d FD_ISSET fd=%d\n",
                        __FILE__, __FUNCTION__, __LINE__, fd);
@@ -399,7 +406,7 @@ void handle_accepted_socket(int listen_socket, int accepted_socket)
 }
 
 /*****************************************************************************/
-void send_to_socket(int fd, const char *buf, unsigned len)
+void send_to_socket(SOCKET fd, const char *buf, unsigned len)
 {
   int res;
   errno = 0;
@@ -409,7 +416,7 @@ void send_to_socket(int fd, const char *buf, unsigned len)
 #else
   if (res == -1) {
 #endif
-    res = write(fd, buf, len);
+    res = send(fd, buf, len, 0);
     if (res != (int)len)
     {
       LOGERR_ERRNO("write(%u %d) failed, calling close()\n",
@@ -430,13 +437,13 @@ void send_to_socket(int fd, const char *buf, unsigned len)
 void socket_loop(void)
 {
   static const char *listen_port_asc = "5024";
-  int listen_socket;
-  int accepted_socket;
+  SOCKET listen_socket;
+  SOCKET accepted_socket;
   int stop_and_exit = 0;
 
   listen_socket = get_listen_socket(listen_port_asc);
 
-  if (listen_socket < 0)
+  if (listen_socket == INVALID_SOCKET)
   {
     LOGERR_ERRNO("no listening socket!\n");
     exit(3);
@@ -445,7 +452,7 @@ void socket_loop(void)
   while (!stop_and_exit)
   {
     accepted_socket = accept(listen_socket, NULL, NULL);
-    if (accepted_socket < 0)
+    if (accepted_socket == INVALID_SOCKET)
     {
       LOGERR("accept() failed\n");
       stop_and_exit = 1;
@@ -460,7 +467,7 @@ void socket_loop(void)
 
 
 /*****************************************************************************/
-extern int socket_set_timeout(int fd, int timeout)
+extern int socket_set_timeout(SOCKET fd, int timeout)
 {
   int i = find_client_con(fd);
   if (i >= 0) {

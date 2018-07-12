@@ -15,7 +15,7 @@ static int cmd_buf_vprintf_crlf (int flags, const char* format, va_list arg)
   const static size_t len = 4096;
   int add_cr = flags & PRINT_ADD_CR;
 
-  char *buf = calloc(len,1);
+  char *buf = (char*)calloc(len,1);
   int res = vsnprintf(buf, len-1, format, arg);
   if (res >= 0 && !add_cr) {
     add_to_buf(buf, res);
@@ -24,7 +24,7 @@ static int cmd_buf_vprintf_crlf (int flags, const char* format, va_list arg)
   {
     unsigned src_idx = 0;
     unsigned dst_idx = 0;
-    char *buf2 = calloc(2*res, 1);
+    char *buf2 = (char*)calloc(2*res, 1);
     char oldc = 0;
     for (src_idx=0; src_idx < res; src_idx++)
     {
@@ -74,7 +74,7 @@ void add_to_buf(const char *add_txt, size_t add_len)
 {
   if (add_len + used_len >= buf_len) {
     buf_len = 1 + add_len + used_len; /* 1 for '\0' */
-    buf = realloc(buf, buf_len);
+    buf = (char*)realloc(buf, buf_len);
   }
   memcpy(&buf[used_len], add_txt, add_len);
   used_len += add_len;

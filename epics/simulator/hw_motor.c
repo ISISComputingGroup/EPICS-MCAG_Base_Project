@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#include <time.h>
+#include "gettimeofday.h"
+#else
 #include <sys/time.h>
+#endif
 #include <math.h>
 #include "hw_motor.h"
 #include "sock-util.h" /* stdlog */
