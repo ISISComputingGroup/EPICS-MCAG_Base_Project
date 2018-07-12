@@ -4,6 +4,8 @@
 #include <windows.h>
 #else
 #define SOCKET int
+#define INVALID_SOCKET -1
+#define closesocket close
 #endif
 
 extern int handle_input_line(SOCKET socket_fd, const char *input_line, int had_cr, int had_lf);

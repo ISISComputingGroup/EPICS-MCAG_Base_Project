@@ -3,12 +3,15 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <epicsStdio.h>
 #include "sock-util.h"
 #include "logerr_info.h"
 #include "cmd_buf.h"
 #include "hw_motor.h"
 #include "cmd_EAT.h"
+
+/* incldue last as it redefines printf 
+   so gives interesting warning when compiling cmd_buf.h */
+#include <epicsStdio.h>
 
 typedef struct
 {
