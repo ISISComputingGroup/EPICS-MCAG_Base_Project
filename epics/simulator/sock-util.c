@@ -12,7 +12,6 @@ typedef SSIZE_T ssize_t;
 #include <libgen.h>
 #endif
 #include <stdint.h>
-#include <stdbool.h>
 #include <errno.h>
 
 #include "sock-util.h"

@@ -3,12 +3,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <epicsStdio.h>
 #include "sock-util.h"
 #include "logerr_info.h"
 #include "cmd_buf.h"
 #include "hw_motor.h"
 #include "cmd_EAT.h"
-
 
 typedef struct
 {
@@ -554,7 +554,7 @@ static void motorHandleOneArg(const char *myarg_1)
   if (!strcmp(myarg_1, "sErrorMessage?")) {
     char buf[32]; /* 9 should be OK */
     int nErrorId = get_nErrorId(motor_axis_no);
-    snprintf(buf, sizeof(buf), "%x", nErrorId);
+    epicsSnprintf(buf, sizeof(buf), "%x", nErrorId);
     cmd_buf_printf("%s", buf);
     return;
   }

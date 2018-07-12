@@ -231,24 +231,24 @@ int isMotorMoving(int axis_no)
 
 int getAxisDone(int axis_no)
 {
-  AXIS_CHECK_RETURN_ZERO(axis_no);
   int ret;
+  AXIS_CHECK_RETURN_ZERO(axis_no);
   ret = !isMotorMoving(axis_no);
   return ret;
 }
 
 int getAxisHome(int axis_no)
 {
-  AXIS_CHECK_RETURN_ZERO(axis_no);
   int ret;
+  AXIS_CHECK_RETURN_ZERO(axis_no);
   ret = (motor_axis[axis_no].MotorPosNow == motor_axis[axis_no].HomeProcPos);
   return ret;
 }
 
 int getAxisHomed(int axis_no)
 {
-  AXIS_CHECK_RETURN_ZERO(axis_no);
   int ret;
+  AXIS_CHECK_RETURN_ZERO(axis_no);
   ret = motor_axis[axis_no].homed;
   return ret;
 }
