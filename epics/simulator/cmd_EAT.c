@@ -60,6 +60,8 @@ static void init_axis(int axis_no)
     setHWlowPos (axis_no, valueLow);
     setHWhighPos(axis_no, valueHigh);
     setHWhomeSwitchpos(axis_no, 0);
+    
+    cmd_Motor_cmd[axis_no].maximumVelocity = 10.0;
 
     init_done[axis_no] = 1;
   }
