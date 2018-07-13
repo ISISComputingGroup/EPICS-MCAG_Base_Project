@@ -61,8 +61,6 @@ EssMCAGmotorAxis::EssMCAGmotorAxis(EssMCAGmotorController *pC, int axisNo,
     }
     free(pOptions);
   }
-  setDoubleParam(pC_->motorResolution_, 0.1);
-  setDoubleParam(pC_->motorEncoderRatio_, 1.0);
   pC_->wakeupPoller();
 }
 
