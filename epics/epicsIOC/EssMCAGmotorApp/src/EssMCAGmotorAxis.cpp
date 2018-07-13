@@ -61,7 +61,8 @@ EssMCAGmotorAxis::EssMCAGmotorAxis(EssMCAGmotorController *pC, int axisNo,
     }
     free(pOptions);
   }
-
+  setDoubleParam(pC_->motorResolution_, 0.1);
+  setDoubleParam(pC_->motorEncoderRatio_, 1.0);
   pC_->wakeupPoller();
 }
 
@@ -310,6 +311,40 @@ asynStatus EssMCAGmotorAxis::sendVelocityAndAccelExecute(double maxVelocity, dou
   return status;
 }
 
+double EssMCAGmotorAxis::scaleValueFromMotorRecord(double value)
+{
+  double mres = 0.0;
+  if ( (getDoubleParam(pC_->motorResolution_, &mres) == asynSuccess) && (mres != 0.0) )
+  {
+	  value *= mres;
+  }
+  return value;
+}
+
+double EssMCAGmotorAxis::scaleMotorValueToMotorRecord(double value)
+{
+  double mres = 0.0;
+  if (getDoubleParam(pC_->motorResolution_, &mres) == asynSuccess && mres != 0.0)
+  {
+	  value /= mres;
+  }
+  return value;
+}
+
+double EssMCAGmotorAxis::scaleEncoderValueToMotorRecord(double value)
+{
+  double mres = 0.0, eres = 0.0, meratio = 0.0;
+  int stat;
+  stat = getDoubleParam(pC_->motorResolution_, &mres);
+  stat |= getDoubleParam(pC_->motorEncoderRatio_, &meratio);
+  if (stat == asynSuccess && mres != 0.0 && meratio != 0.0)
+  {
+      eres = mres / meratio;
+      value /= eres;
+  }
+  return value;
+}
+
 /** Move the axis to a position, either absolute or relative
   * \param[in] position in mm
   * \param[in] relative (0=absolute, otherwise relative)
@@ -321,7 +356,9 @@ asynStatus EssMCAGmotorAxis::sendVelocityAndAccelExecute(double maxVelocity, dou
 asynStatus EssMCAGmotorAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
 {
   asynStatus status = asynSuccess;
-
+  position = scaleValueFromMotorRecord(position);
+  minVelocity = scaleValueFromMotorRecord(minVelocity);
+  maxVelocity = scaleValueFromMotorRecord(maxVelocity);
   if (status == asynSuccess) status = stopAxisInternal(__FUNCTION__, 0);
   if (status == asynSuccess) status = updateSoftLimitsIfDirty(__LINE__);
   if (status == asynSuccess) status = setValueOnAxis("nCommand", relative ? 2 : 3);
@@ -342,7 +379,8 @@ asynStatus EssMCAGmotorAxis::move(double position, int relative, double minVeloc
 asynStatus EssMCAGmotorAxis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
 {
   asynStatus status = asynSuccess;
-
+  minVelocity = scaleValueFromMotorRecord(minVelocity);
+  maxVelocity = scaleValueFromMotorRecord(maxVelocity);
   /* The controller will do the home search, and change its internal
      raw value to what we specified in fPosition. Use 0 */
   if (status == asynSuccess) status = stopAxisInternal(__FUNCTION__, 0);
@@ -367,7 +405,8 @@ asynStatus EssMCAGmotorAxis::home(double minVelocity, double maxVelocity, double
 asynStatus EssMCAGmotorAxis::moveVelocity(double minVelocity, double maxVelocity, double acceleration)
 {
   asynStatus status = asynSuccess;
-
+  minVelocity = scaleValueFromMotorRecord(minVelocity);
+  maxVelocity = scaleValueFromMotorRecord(maxVelocity);
   if (status == asynSuccess) status = stopAxisInternal(__FUNCTION__, 0);
   if (status == asynSuccess) status = updateSoftLimitsIfDirty(__LINE__);
   if (status == asynSuccess) setValueOnAxis("nCommand", 1);
@@ -592,11 +631,11 @@ asynStatus EssMCAGmotorAxis::poll(bool *moving)
     setIntegerParam(pC_->motorStatusDirection_, 0);
   }
   drvlocal.oldPosition = st_axis_status.fActPosition;
-  setDoubleParam(pC_->motorPosition_, st_axis_status.fActPosition);
+  setDoubleParam(pC_->motorPosition_, scaleMotorValueToMotorRecord(st_axis_status.fActPosition));
   if (drvlocal.externalEncoderStr) {
     double fEncPosition;
     comStatus = getValueFromController(drvlocal.externalEncoderStr, &fEncPosition);
-    if (!comStatus) setDoubleParam(pC_->motorEncoderPosition_, fEncPosition);
+    if (!comStatus) setDoubleParam(pC_->motorEncoderPosition_, scaleEncoderValueToMotorRecord(fEncPosition));
   }
 
   nowMoving = st_axis_status.bBusy && st_axis_status.bExecute && st_axis_status.bEnabled;
@@ -665,16 +704,18 @@ asynStatus EssMCAGmotorAxis::setDoubleParam(int function, double value)
 {
   asynStatus status;
   if (function == pC_->motorHighLimit_) {
+	double localValue = scaleValueFromMotorRecord(value);
     asynPrint(pC_->pasynUserController_, ASYN_TRACE_INFO,
-              "setDoubleParam(motorHighLimit_)=%f\n", value);
-    drvlocal.motorHighLimit = value;
+              "setDoubleParam(motorHighLimit_)=%f\n", localValue);
+    drvlocal.motorHighLimit = localValue;
     drvlocal.defined.motorHighLimit = 1;
     drvlocal.dirty.motorLimits = 1;
     if (drvlocal.defined.motorLowLimit) setMotorLimitsOnAxis();
   } else if (function == pC_->motorLowLimit_) {
+	double localValue = scaleValueFromMotorRecord(value);
     asynPrint(pC_->pasynUserController_, ASYN_TRACE_INFO,
-              "setDoubleParam(motorLowLimit_)=%f\n", value);
-    drvlocal.motorLowLimit = value;
+              "setDoubleParam(motorLowLimit_)=%f\n", localValue);
+    drvlocal.motorLowLimit = localValue;
     drvlocal.defined.motorLowLimit = 1;
     drvlocal.dirty.motorLimits = 1;
     if (drvlocal.defined.motorHighLimit) setMotorLimitsOnAxis();
@@ -683,4 +724,9 @@ asynStatus EssMCAGmotorAxis::setDoubleParam(int function, double value)
   // Call the base class method
   status = asynMotorAxis::setDoubleParam(function, value);
   return status;
+}
+
+asynStatus EssMCAGmotorAxis::getDoubleParam(int function, double* value)
+{
+    return pC_->getDoubleParam(axisNo_, function, value);	
 }
