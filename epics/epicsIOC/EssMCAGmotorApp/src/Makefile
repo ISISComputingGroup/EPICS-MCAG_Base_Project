@@ -22,8 +22,7 @@ eemcuSupport_DBD += EssMCAGmotorController.dbd
 EssMCAGmotor_DBD += base.dbd
 EssMCAGmotor_DBD += asyn.dbd
 EssMCAGmotor_DBD += drvAsynIPPort.dbd
-#EssMCAGmotor_DBD += motorSupport.dbd
-EssMCAGmotor_DBD += axisSupport.dbd
+EssMCAGmotor_DBD += motorSupport.dbd
 EssMCAGmotor_DBD += eemcuSupport.dbd
 
 # Add source files
@@ -31,7 +30,7 @@ eemcuSupport_SRCS += EssMCAGmotorController.cpp
 eemcuSupport_SRCS += EssMCAGmotorAxis.cpp
 
 # Add all the support libraries needed by this IOC
-eemcuSupport_LIBS += axis
+eemcuSupport_LIBS += motor
 eemcuSupport_LIBS += asyn
 eemcuSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 
@@ -47,7 +46,7 @@ EssMCAGmotor_SRCS_vxWorks += -nil-
 
 # Finally link to the EPICS Base libraries
 EssMCAGmotor_LIBS += eemcuSupport
-EssMCAGmotor_LIBS += axis
+EssMCAGmotor_LIBS += motor
 EssMCAGmotor_LIBS += asyn
 EssMCAGmotor_LIBS += $(EPICS_BASE_IOC_LIBS)
 

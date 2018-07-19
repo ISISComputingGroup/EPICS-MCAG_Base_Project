@@ -1,5 +1,3 @@
-# top level master release and local private options 
-
 TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
 ASYN=$(SUPPORT)/asyn/master
@@ -12,10 +10,9 @@ IPAC=$(SUPPORT)/ipac/master
 SNCSEQ=$(SUPPORT)/seq/master
 SSCAN=$(SUPPORT)/sscan/master
 ONCRPC=$(SUPPORT)/oncrpc/master
-#MOTOR=$(SUPPORT)/motor/master
-AXISRECORD=$(SUPPORT)/axisRecord/master
+MOTOR=$(SUPPORT)/motor/master
+
+include $(TOP)/../../../../../ISIS_CONFIG
 
 # optional extra local definitions here
 -include $(TOP)/../../configure/RELEASE.private
-
-include $(TOP)/../../../../../ISIS_CONFIG
