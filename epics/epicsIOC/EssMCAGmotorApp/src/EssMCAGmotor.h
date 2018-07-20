@@ -119,6 +119,10 @@ private:
   asynStatus setIntegerParam(int function, int value);
   asynStatus setDoubleParam(int function, double value);
   asynStatus stopAxisInternal(const char *function_name, double acceleration);
+  double scaleMotorValueToMotorRecord(double value);
+  double scaleEncoderValueToMotorRecord(double value);
+  double scaleValueFromMotorRecord(double value);
+  asynStatus getDoubleParam(int function, double* value);
 
   friend class EssMCAGmotorController;
 };
