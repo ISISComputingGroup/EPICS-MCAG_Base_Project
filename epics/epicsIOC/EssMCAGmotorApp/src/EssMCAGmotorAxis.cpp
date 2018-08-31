@@ -10,7 +10,7 @@ FILENAME... EssMCAGmotorAxis.cpp
 
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
-
+#include <errlog.h>
 #include <epicsExport.h>
 #include "EssMCAGmotor.h"
 
@@ -379,6 +379,10 @@ asynStatus EssMCAGmotorAxis::home(double minVelocity, double maxVelocity, double
   asynStatus status = asynSuccess;
   minVelocity = scaleValueFromMotorRecord(minVelocity);
   maxVelocity = scaleValueFromMotorRecord(maxVelocity);
+  errlogSevPrintf(errlogMajor, "HOMING not currrently supported");
+  return status;
+
+#if 0  
   /* The controller will do the home search, and change its internal
      raw value to what we specified in fPosition. Use 0 */
   if (status == asynSuccess) status = stopAxisInternal(__FUNCTION__, 0);
@@ -391,6 +395,7 @@ asynStatus EssMCAGmotorAxis::home(double minVelocity, double maxVelocity, double
   if (status == asynSuccess) status = sendVelocityAndAccelExecute(maxVelocity, acceleration);
 
   return status;
+#endif
 }
 
 
