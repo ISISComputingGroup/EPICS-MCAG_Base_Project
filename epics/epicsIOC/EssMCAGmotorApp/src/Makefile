@@ -55,5 +55,6 @@ EssMCAGmotor_LIBS += $(EPICS_BASE_IOC_LIBS)
 include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
-
+EssMCAGmotor.dbd$(DEP): $(COMMON_DIR)/eemcuSupport.dbd
 $(COMMON_DIR)/EssMCAGmotor.dbd: $(COMMON_DIR)/eemcuSupport.dbd
+
