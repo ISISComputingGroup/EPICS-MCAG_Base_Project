@@ -9,4 +9,5 @@ _Libraries/
 *.tpy
 *.suo
 runIOC.bat
-dllPath.bat
+dllPath*.bat
+NULL
