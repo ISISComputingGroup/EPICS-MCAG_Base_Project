@@ -1,4 +1,6 @@
 # MCAG_Base_Project
+**NOW OBSELETE - no longer used on IMAT**
+
 TwinCAT project prepared to be used with EPICS
 
 EPICS model 3 motor driver for a TwinCAT 3 system
